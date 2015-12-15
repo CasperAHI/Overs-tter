@@ -21,18 +21,21 @@ type t__19__ = (int*int)
 type t__20__ = (int*int)
 type t__21__ = (int*int)
 type t__22__ = (int*int)
-type t__23__ = int*(int*int)
-type t__24__ = (bool*bool)
-type t__25__ = (int*int)
-type t__26__ = (int*int)
+type t__23__ = (int*int)
+type t__24__ = (int*int)
+type t__25__ = int*(int*int)
+type t__26__ = (bool*bool)
 type t__27__ = (int*int)
 type t__28__ = (int*int)
 type t__29__ = (int*int)
-type t__30__ = string*(int*int)
+type t__30__ = (int*int)
 type t__31__ = (int*int)
 type t__32__ = (int*int)
-type t__33__ = bool*(int*int)
+type t__33__ = string*(int*int)
 type t__34__ = (int*int)
+type t__35__ = (int*int)
+type t__36__ = bool*(int*int)
+type t__37__ = (int*int)
 in
 datatype token =
     AND of t__1__
@@ -51,23 +54,26 @@ datatype token =
   | IF of t__14__
   | IN of t__15__
   | INT of t__16__
-  | LBRACKET of t__17__
-  | LCURLY of t__18__
-  | LET of t__19__
-  | LPAR of t__20__
-  | LTH of t__21__
-  | MINUS of t__22__
-  | NUM of t__23__
-  | OR of t__24__
-  | PLUS of t__25__
-  | RBRACKET of t__26__
-  | RCURLY of t__27__
-  | READ of t__28__
-  | RPAR of t__29__
-  | STRINGLIT of t__30__
-  | THEN of t__31__
-  | TIMES of t__32__
-  | TRUE of t__33__
-  | WRITE of t__34__
+  | IOTA of t__17__
+  | LBRACKET of t__18__
+  | LCURLY of t__19__
+  | LET of t__20__
+  | LPAR of t__21__
+  | LTH of t__22__
+  | MAP of t__23__
+  | MINUS of t__24__
+  | NUM of t__25__
+  | OR of t__26__
+  | PLUS of t__27__
+  | RBRACKET of t__28__
+  | RCURLY of t__29__
+  | READ of t__30__
+  | REDUCE of t__31__
+  | RPAR of t__32__
+  | STRINGLIT of t__33__
+  | THEN of t__34__
+  | TIMES of t__35__
+  | TRUE of t__36__
+  | WRITE of t__37__
 end;
 

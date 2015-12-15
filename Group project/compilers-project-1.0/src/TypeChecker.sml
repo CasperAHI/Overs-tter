@@ -116,16 +116,28 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
     | In.And (e1, e2, pos)
-      => raise Fail "Unimplemented feature &&"
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
+         in (Int,
+             Out.And (e1_dec, e2_dec, pos))
+         end
 
     | In.Or (e1, e2, pos)
-      => raise Fail "Unimplemented feature ||"
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
+         in (Int,
+             Out.In (e1_dec, e2_dec, pos))
+         end
 
     | In.Not (e, pos)
-      => raise Fail "Unimplemented feature not"
+      => let val (_, e_dec) = checkBinOp ftab vtab (pos, Bool, e)
+         in (Int,
+             Out.Not (e_dec, pos))
+         end
 
     | In.Negate (e, pos)
-      => raise Fail "Unimplemented feature negate"
+      => let val (_, e_dec) = checkBinOp ftab vtab (pos, Int, e)
+         in (Int,
+             Out.Negate (e_dec, pos))
+         end
 
     (* The types for e1, e2 must be the same. The result is always a Bool. *)
     | In.Equal (e1, e2, pos)
@@ -218,7 +230,7 @@ and checkExp ftab vtab (exp : In.Exp)
              val (e_type) =
                  case a_type of
                    Array c => c
-                   | other => raise Error ("Map: Argument isn´t an array" ^ pos)
+                   | _ => raise Error ("Map: Argument isn´t an array" ^ pos)
              val (f', f_res_type, f_arg_type)
              case checkFunArg (f, vtab, ftab, pos) of
                  (f', res, [a1]) => (f', res, [a1])
@@ -232,9 +244,8 @@ and checkExp ftab vtab (exp : In.Exp)
                               ^ ppType f_arg_type , pos)
          end
 
-               
     | In.Reduce (f, n_exp, arr_exp, _, pos)
-      => raise Fail "Unimplemented feature reduce"
+      => case (f, n_exp, arr_exp)
 
 and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
