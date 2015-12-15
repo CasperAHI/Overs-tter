@@ -269,7 +269,14 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
     end
 
   | evalExp ( Map (farg, arrexp, _, _, pos), vtab, ftab ) =
-    raise Fail "Unimplemented feature map"
+    let val array = evalExp(arrexp, vtab, ftab)
+        val (call_farg, farg_ret_type) = evalFunArg (farg, vtab, ftab, pos)
+    in case array of ArrayVal(lst,tp1) =>
+                     let val mlst = map (fn x => call_farg([x])) lst
+                     in ArrayVal (mlst, farg_ret_type)
+                     end
+                     | otherwise => raise Error("Error, second argument is not an array: " ^ppVal 0 arr,pos)
+    end
 
   | evalExp ( Reduce (farg, ne, arrexp, tp, pos), vtab, ftab ) =
     raise Fail "Unimplemented feature reduce"
