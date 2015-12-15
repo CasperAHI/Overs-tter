@@ -38,6 +38,8 @@
        | "char"         => Parser.CHAR pos
        | "fun"          => Parser.FUN pos
        | "iota"         => Parser.IOTA pos
+       | "map"          => Parser.MAP pos
+       | "reduce"       => Parser.REDUCE pos
 
 (* specials: *)
        | "read"         => Parser.READ pos
