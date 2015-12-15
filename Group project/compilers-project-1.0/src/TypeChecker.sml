@@ -212,9 +212,26 @@ and checkExp ftab vtab (exp : In.Exp)
             else raise Error ("Iota: wrong argument type " ^
                               ppType e_type, pos)
          end
-               
+
     | In.Map (f, arr_exp, _, _, pos)
-      => raise Fail "Unimplemented feature map"
+      => let val (a_type,b) = checkExp ftab vtab arr_exp
+             val (e_type) =
+                 case a_type of
+                   Array c => c
+                   | other => raise Error ("Map: Argument isn´t an array" ^ pos)
+             val (f', f_res_type, f_arg_type)
+             case checkFunArg (f, vtab, ftab, pos) of
+                 (f', res, [a1]) => (f', res, [a1])
+                                 | (_, res, args) =>
+                                   raise Error ("Map: Function isn't compatible. Type is:" ^ In.ppFunArg 0 f ^ ":" ^ showFunType (args, res), pos) )
+         in if e_type = f_arg_type
+            then (Array f_res_type,
+                  Out.Map (f', arr_exp_dec, e_type, f_res_type, pos))
+            else raise Error ("Map: array element types does not match. "
+                              ^ ppType e_type ^ " instead of "
+                              ^ ppType f_arg_type , pos)
+         end
+
                
     | In.Reduce (f, n_exp, arr_exp, _, pos)
       => raise Fail "Unimplemented feature reduce"
