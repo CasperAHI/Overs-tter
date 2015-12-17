@@ -74,17 +74,17 @@ rule Token = parse
 			     | SOME s => String.substring(s,1,
 							  String.size s - 2)),
 			     getPos lexbuf) }
-  | `True`              { Parser.TRUE   (getPos lexbuf) }
-  | `False`             { Parser.FALSE  (getPos lexbuf) }
+  | "True"              { Parser.TRUE   (getPos lexbuf) }
+  | "False"             { Parser.FALSE  (getPos lexbuf) }
   | `*`                 { Parser.TIMES  (getPos lexbuf) }
   | `/`                 { Parser.DIVIDE (getPos lexbuf) }
-  | `&&`                { Parser.AND    (getPos lexbuf) }
-  | `||`                { Parser.OR     (getPos lexbuf) }
+  | "&&"                { Parser.AND    (getPos lexbuf) }
+  | "||"                { Parser.OR     (getPos lexbuf) }
   | `+`                 { Parser.PLUS   (getPos lexbuf) }
   | `-`                 { Parser.MINUS  (getPos lexbuf) }
   | "=="                { Parser.DEQ    (getPos lexbuf) }
   | "not"               { Parser.NOT    (getPos lexbuf) }
-  | "~"                 { Parser.NEGATE (getPos lexbuf) }
+  | `~`                 { Parser.NEGATE (getPos lexbuf) }
   | `=`                 { Parser.EQ     (getPos lexbuf) }
   | `<`                 { Parser.LTH    (getPos lexbuf) }
   | `(`                 { Parser.LPAR   (getPos lexbuf) }

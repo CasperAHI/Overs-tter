@@ -9,7 +9,7 @@ type t__7__ = (int*int)
 type t__8__ = (int*int)
 type t__9__ = (int*int)
 type t__10__ = (int*int)
-type t__11__ = bool*(int*int)
+type t__11__ = (int*int)
 type t__12__ = (int*int)
 type t__13__ = string*(int*int)
 type t__14__ = (int*int)
@@ -36,7 +36,7 @@ type t__34__ = (int*int)
 type t__35__ = string*(int*int)
 type t__36__ = (int*int)
 type t__37__ = (int*int)
-type t__38__ = bool*(int*int)
+type t__38__ = (int*int)
 type t__39__ = (int*int)
 in
 datatype token =
@@ -470,14 +470,14 @@ in
 (* Rule 13, file Parser.grm, line 71 *)
 val _ = update_ yyact 13
 (fn () => repr(let
-val d__1__ = peekVal 0 : bool*(int*int)
+val d__1__ = peekVal 0 : (int*int)
 in
 ( Constant (BoolVal (#1 (d__1__)), #2 (d__1__)) ) end : Fasto.UnknownTypes.Exp))
 ;
 (* Rule 14, file Parser.grm, line 72 *)
 val _ = update_ yyact 14
 (fn () => repr(let
-val d__1__ = peekVal 0 : bool*(int*int)
+val d__1__ = peekVal 0 : (int*int)
 in
 ( Constant (BoolVal (#1 (d__1__)), #2 (d__1__)) ) end : Fasto.UnknownTypes.Exp))
 ;
@@ -701,7 +701,7 @@ val d__4__ = peekVal 2 : (int*int)
 val d__5__ = peekVal 1 : Fasto.UnknownTypes.Exp
 val d__6__ = peekVal 0 : (int*int)
 in
-( MAP ((d__3__), (d__5__), (), (), (d__1__)) ) end : Fasto.UnknownTypes.Exp))
+( Map ((d__3__), (d__5__), (), (), (d__1__)) ) end : Fasto.UnknownTypes.Exp))
 ;
 (* Rule 39, file Parser.grm, line 110 *)
 val _ = update_ yyact 39
@@ -715,7 +715,7 @@ val d__6__ = peekVal 2 : (int*int)
 val d__7__ = peekVal 1 : Fasto.UnknownTypes.Exp
 val d__8__ = peekVal 0 : (int*int)
 in
-( REDUCE ((d__3__), (d__5__), (d__7__), (), (d__1__)) ) end : Fasto.UnknownTypes.Exp))
+( Reduce ((d__3__), (d__5__), (d__7__), (), (d__1__)) ) end : Fasto.UnknownTypes.Exp))
 ;
 (* Rule 40, file Parser.grm, line 114 *)
 val _ = update_ yyact 40
