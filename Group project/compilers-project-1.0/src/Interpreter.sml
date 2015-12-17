@@ -275,7 +275,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
                      let val mlst = map (fn x => call_farg([x])) lst
                      in ArrayVal (mlst, farg_ret_type)
                      end
-                     | otherwise => raise Fail ("Error, second argument is not an array: ")
+                     | otherwise => raise Error("Error, second argument is not an array: " ^ppVal 0 array ,pos)
     end
 
   | evalExp ( Reduce (farg, ne, arrexp, tp, pos), vtab, ftab ) =
