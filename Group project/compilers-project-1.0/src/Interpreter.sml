@@ -270,14 +270,30 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
 
   | evalExp ( Map (farg, arrexp, _, _, pos), vtab, ftab ) =
     let val array = evalExp(arrexp, vtab, ftab)
+<<<<<<< HEAD
     in
       case array of ArrayVal(lst, tp1) =>
                   ArrayVal ((map (fn x => evalFunArg(farg, vtab, ftab, pos, [x])) lst), tp1)
                  | _ => raise Fail "not an array"
+=======
+        val (call_farg) = evalFunArg (farg, vtab, ftab, pos, arrexp)
+    in case array of ArrayVal(lst,tp1) =>
+                     let val mlst = map (fn x => call_farg([x])) lst
+                     in ArrayVal (mlst, Int)
+                     end
+                     | otherwise => raise Error("Error, second argument is not an array: " ^ppVal 0 array ,pos)
+>>>>>>> origin/master
     end
 
   | evalExp ( Reduce (farg, ne, arrexp, tp, pos), vtab, ftab ) =
-    raise Fail "Unimplemented feature reduce"
+    let val farg_ret_type = rtpFunArg (farg, ftab, pos)
+        val arr = evalExp(arrexp, vtab, ftab)
+        val nel = evalExp(ne, vtab, ftab)
+    in case arr of
+           ArrayVal (lst,tp1) =>
+           foldl (fn (x,y) => evalFunArg (farg, vtab, ftab, pos, ([y,x]))) nel lst
+           | otherwise => raise Error("Third input isn't an Array" ^ ppVal 0 arr, pos)
+    end
 
   | evalExp ( Read (t,p), vtab, ftab ) =
         let val str =
