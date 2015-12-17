@@ -163,8 +163,15 @@ fun compileExp e vtable place =
         , Mips.ORI (place, place, makeConst (n mod 65536)) ]
   | Constant (CharVal c, pos) => [ Mips.LI (place, makeConst (ord c)) ]
 
-  | Constant (BoolVal b, pos) => [ Mips.LI (place, makeConst b) ]
-  (* Create/return a label here, collect all string literals of the program
+  | Constant (BoolVal b, pos) =>
+    let
+      val bo = b
+    in
+    case bo of
+         true  => [ Mips.LI (place, "1") ]
+       | false => [ Mips.LI (place, "0") ]
+    end
+(* Create/return a label here, collect all string literals of the program
      (in stringTable), and create them in the data section before the heap
      (Mips.ASCIIZ) *)
   | StringLit (strLit, pos) =>
@@ -254,11 +261,10 @@ fun compileExp e vtable place =
                           ,Mips.LABEL falseLabel]
       end
   | Negate (e', pos) =>
-      let val t1 = newName "not"
-          val code1 = compileExp e' vtable t1
-      in  code1 @ [Mips.SUB (t2,"0","1")
-                  ,Mips.MUL (place,t1,t2)]
-      end
+    let val t1 = newName "negate"
+        val code1 = compileExp e' vtable t1
+    in  code1 @ [Mips.MUL (place,t1,"-1")]
+    end
 
   | Let (dec, e1, pos) =>
       let val (code1, vtable1) = compileDec dec vtable
@@ -424,7 +430,7 @@ fun compileExp e vtable place =
           ,Mips.BNE (t1,"0",trueLabel)
           ,Mips.BNE (t2,"0",trueLabel)
           ,Mips.LI (place, "0")
-          ,Mips.LABEL falseLabel]
+          ,Mips.LABEL trueLabel]
       end
 
   (* Indexing:
