@@ -270,19 +270,10 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
 
   | evalExp ( Map (farg, arrexp, _, _, pos), vtab, ftab ) =
     let val array = evalExp(arrexp, vtab, ftab)
-<<<<<<< HEAD
     in
       case array of ArrayVal(lst, tp1) =>
                   ArrayVal ((map (fn x => evalFunArg(farg, vtab, ftab, pos, [x])) lst), tp1)
                  | _ => raise Fail "not an array"
-=======
-        val (call_farg) = evalFunArg (farg, vtab, ftab, pos, arrexp)
-    in case array of ArrayVal(lst,tp1) =>
-                     let val mlst = map (fn x => call_farg([x])) lst
-                     in ArrayVal (mlst, Int)
-                     end
-                     | otherwise => raise Error("Error, second argument is not an array: " ^ppVal 0 array ,pos)
->>>>>>> origin/master
     end
 
   | evalExp ( Reduce (farg, ne, arrexp, tp, pos), vtab, ftab ) =
