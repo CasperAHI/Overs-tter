@@ -184,18 +184,18 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
             | (_, _) => invalidOperands "Invalid Or operand types" [(Bool, Bool)] r1 r2 pos
         end
 
-  | evalExp ( Not(e, pos), vtab, ftab ) =
+  | evalExp (Not(e, pos), vtab, ftab ) =
         let val r1 = evalExp(e, vtab, ftab)
         in  case r1 of
-              (BoolVal b) => BoolVal (not b)
-            | (_) => invalidOperands "Invalid Not operand types" [(Bool)] r1 pos
+             (BoolVal b) => BoolVal (not b)
+            | (_) => invalidOperand "Invalid Not operand types" Bool r1 pos
         end
 
   | evalExp ( Negate(e, pos), vtab, ftab ) =
         let val r1 = evalExp(e, vtab, ftab)
         in  case r1 of
               (IntVal i) => IntVal ((~1)*i)
-            | (_) => invalidOperands "Invalid Negate operand types" [(Int)] i pos
+            | (_) => invalidOperand "Invalid Negate operand types" Bool r1 pos
         end
 
   | evalExp ( Equal(e1, e2, pos), vtab, ftab ) =
@@ -262,7 +262,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
     in case sz of
            IntVal size =>
               if size >= 0
-              then ArrayVal(List.tabulate(size, (fn x => IntVal x)), int)
+              then ArrayVal(List.tabulate(size, (fn x => IntVal x)), Int)
               else raise Error("Error: In iota call, size is negative: "
                                ^ Int.toString(size), pos)
                 | _ => raise Error("Iota argument is not a number: "^ppVal 0 sz, pos)
@@ -275,7 +275,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
                      let val mlst = map (fn x => call_farg([x])) lst
                      in ArrayVal (mlst, farg_ret_type)
                      end
-                     | otherwise => raise Error("Error, second argument is not an array: " ^ppVal 0 arr,pos)
+                     | otherwise => raise Fail ("Error, second argument is not an array: ")
     end
 
   | evalExp ( Reduce (farg, ne, arrexp, tp, pos), vtab, ftab ) =
