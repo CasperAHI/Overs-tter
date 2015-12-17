@@ -231,40 +231,21 @@ and checkExp ftab vtab (exp : In.Exp)
 
     | In.Map (f, arr_exp, _, _, pos)
       => let val (a_type,b) = checkExp ftab vtab arr_exp
-             val (f_type,k) = checkFunArg(f, vtab, ftab, pos)
+             val (f_type,k,p) = checkFunArg(f, vtab, ftab, pos)
          in
-           if a_type = f_type
-           then (a_type, Out.Map(k, b, f_type, a_type, pos))
+           if a_type = k
+           then (k, Out.Map(f_type, b, k, a_type, pos))
            else raise Error ("Map: Wrong argument type" ^ ppType a_type, pos)
          end
 
-    | In.Reduce (f, n_exp, arr_exp, _, pos)
+     | In.Reduce (f, n_exp, arr_exp, _, pos)
       => let val (n_type, n_dec) = checkExp ftab vtab n_exp
              val (arr_type, arr_dec) = checkExp ftab vtab arr_exp
-             val elem_type =
-               case arr_type of
-                   Array t => t
-                 | other => raise Error ("Reduce: Argument not an array", pos)
-             val (f', f_arg_type) =
-               case checkFunArg (f, vtab, ftab, pos) of
-                   (f', res, [a1, a2]) =>
-                   if a1 = a2 andalso a2 = res
-                   then (f', res)
-                   else raise Error
-                          ("Reduce: incompatible function type of "
-                           ^ In.ppFunArg 0 f ^": " ^ showFunType ([a1, a2], res), pos)
-                 | (_, res, args) =>
-                   raise Error ("Reduce: incompatible function type of "
-                                ^ In.ppFunArg 0 f ^ ": " ^ showFunType (args, res), pos)
-             fun err (s, t) =
-                 Error ("Reduce: unexpected " ^ s ^ " type " ^ ppType t ^
-                        ", expected " ^ ppType f_arg_type, pos)
-         in if elem_type = f_arg_type
-            then if elem_type = n_type
-                 then (elem_type,
-                       Out.Reduce (f', n_dec, arr_dec, elem_type, pos))
-                 else raise (err ("neutral element", n_type))
-            else raise err ("array element", elem_type)
+             val (f_type, f_dec, k) = checkFunArg (f, vtab, ftab, pos)
+         in
+           if (n_type = arr_type)
+           then (n_type, Out.Reduce (f_type, n_dec, arr_dec, f_dec, pos))
+           else raise Error ("Reduce: Wrong argument type" ^ ppType n_type, pos)
          end
 
 and checkFunArg (In.FunName fname, vtab, ftab, pos) =
