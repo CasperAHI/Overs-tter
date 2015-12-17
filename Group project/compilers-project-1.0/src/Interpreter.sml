@@ -263,7 +263,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
            IntVal size =>
               if size >= 0
               then ArrayVal(List.tabulate(size, (fn x => IntVal x)), int)
-              else raise Error("Error: In iota call, size is negative: " ^
+              else raise Error("Error: In iota call, size is negative: "
                                ^ Int.toString(size), pos)
                 | _ => raise Error("Iota argument is not a number: "^ppVal 0 sz, pos)
     end
