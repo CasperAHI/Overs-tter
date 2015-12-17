@@ -40,6 +40,8 @@
        | "iota"         => Parser.IOTA pos
        | "map"          => Parser.MAP pos
        | "reduce"       => Parser.REDUCE pos
+       | "true"         => Parser.BOOLVAL (true,pos)
+       | "false"        => Parser.BOOLVAL (false,pos)
 
 (* specials: *)
        | "read"         => Parser.READ pos
@@ -74,8 +76,6 @@ rule Token = parse
 			     | SOME s => String.substring(s,1,
 							  String.size s - 2)),
 			     getPos lexbuf) }
-  | "True"              { Parser.TRUE   (getPos lexbuf) }
-  | "False"             { Parser.FALSE  (getPos lexbuf) }
   | `*`                 { Parser.TIMES  (getPos lexbuf) }
   | `/`                 { Parser.DIVIDE (getPos lexbuf) }
   | "&&"                { Parser.AND    (getPos lexbuf) }
