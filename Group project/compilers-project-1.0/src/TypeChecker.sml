@@ -122,21 +122,25 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
     | In.Or (e1, e2, pos)
-      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
          in (Bool,
-             Out.In (e1_dec, e2_dec, pos))
+             Out.Or (e1_dec, e2_dec, pos))
          end
 
     | In.Not (e, pos)
-      => let val (_, e_dec) = checkBinOp ftab vtab (pos, Bool, e)
-         in (Bool,
-             Out.Not (e_dec, pos))
+      => let val (k, e_dec) = checkExp ftab vtab e
+         in
+           if k = Bool
+           then (Bool, Out.Not (e_dec, pos))
+           else raise Fail "Not a boolean"
          end
 
     | In.Negate (e, pos)
-      => let val (_, e_dec) = checkBinOp ftab vtab (pos, Int, e)
-         in (Int,
-             Out.Negate (e_dec, pos))
+      => let val (k, e_dec) = checkExp ftab vtab e
+         in
+           if k = Int
+           then (Int, Out.Negate (e_dec, pos))
+           else raise Fail "Not a Interger"
          end
 
     (* The types for e1, e2 must be the same. The result is always a Bool. *)
@@ -219,7 +223,7 @@ and checkExp ftab vtab (exp : In.Exp)
 
     | In.Iota (n_exp, pos)
       => let val (e_type, n_exp_dec) = checkExp ftab vtab n_exp
-         in if e_type = int
+         in if e_type = Int
             then (Array Int, Out.Iota (n_exp_dec, pos))
             else raise Error ("Iota: wrong argument type " ^
                               ppType e_type, pos)
@@ -227,21 +231,11 @@ and checkExp ftab vtab (exp : In.Exp)
 
     | In.Map (f, arr_exp, _, _, pos)
       => let val (a_type,b) = checkExp ftab vtab arr_exp
-             val (e_type) =
-                 case a_type of
-                   Array c => c
-                   | _ => raise Error ("Map: Argument isn´t an array" ^ pos)
-             val (f', f_res_type, f_arg_type)
-             case checkFunArg (f, vtab, ftab, pos) of
-                 (f', res, [a1]) => (f', res, [a1])
-                                 | (_, res, args) =>
-                                   raise Error ("Map: Function isn't compatible. Type is:" ^ In.ppFunArg 0 f ^ ":" ^ showFunType (args, res), pos) )
-         in if e_type = f_arg_type
-            then (Array f_res_type,
-                  Out.Map (f', arr_exp_dec, e_type, f_res_type, pos))
-            else raise Error ("Map: array element types does not match. "
-                              ^ ppType e_type ^ " instead of "
-                              ^ ppType f_arg_type , pos)
+             val (f_type,k) = checkFunArg(f, vtab, ftab, pos)
+         in
+           if a_type = f_type
+           then (a_type, Out.Map(k, b, f_type, a_type, pos))
+           else raise Error ("Map: Wrong argument type" ^ ppType a_type, pos)
          end
 
     | In.Reduce (f, n_exp, arr_exp, _, pos)
