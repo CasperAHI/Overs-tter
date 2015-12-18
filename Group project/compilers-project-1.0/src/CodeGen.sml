@@ -522,8 +522,48 @@ fun compileExp e vtable place =
          @ loop_footer
       end
 
-  | Map (farg, arr_exp, elem_type, ret_type, pos) =>
-    raise Fail "Unimplemented feature map"
+  | Map (FunName(farg), arr_exp, elem_type, ret_type, pos) =>
+    let
+       val size_reg = newName "size_reg"
+       val arr_reg = newName "arr_reg"
+       val loop_beg = newName "loop_beg"
+       val loop_end = newName "loop_end"
+       val addr_reg = newName "addr_reg"
+       val i_reg = newName "i_reg"
+       val tmp_reg = newName "tmp_reg"
+       val res_reg = newName "res_reg"
+       val elem_reg = newName "elem_reg"
+       val arr_code = compileExp arr_exp vtable size_reg @ [Mips.LW (size_reg, arr_reg, "0")]
+       val init_regs = [ Mips.ADDI (addr_reg, place, "4")
+                       , Mips.MOVE (i_reg, "0")
+                       , Mips.ADDI (elem_reg, arr_reg, "4")]
+       val loop_header = [ Mips.LABEL (loop_beg)
+                         , Mips.SUB (tmp_reg, i_reg, size_reg)
+                         , Mips.BGEZ (tmp_reg, loop_end) ]
+       val loop_map = case getElemSize elem_type of
+                          One => Mips.LB (res_reg, elem_reg, "0")
+                                 :: applyRegs (farg, [res_reg], res_reg, pos)
+                                 @ [Mips.ADDI (elem_reg, elem_reg, "1")]
+                                 @ [Mips.ADDI (addr_reg, addr_reg, "1")]
+                         |Four => Mips.LW(res_reg, elem_reg, "0")
+                                 :: applyRegs (farg, [res_reg], res_reg, pos)
+                                 @ [Mips.ADDI (elem_reg, elem_reg, "4")]
+                                 @ [Mips.ADDI (addr_reg, addr_reg, "4")]
+       val loop_type = case getElemSize ret_type of
+                            One => [Mips.SB (res_reg,addr_reg ,"0")]
+                           |Four => [Mips.SW (res_reg,addr_reg ,"0")]
+       val loop_footer = [ Mips.ADDI (i_reg, i_reg, "1")
+                         , Mips.J loop_beg
+                         , Mips.LABEL loop_end
+                         ]
+    in   arr_code
+         @ dynalloc (size_reg, place, Int)
+         @ init_regs
+         @ loop_header
+         @ loop_map
+         @ loop_type
+         @ loop_footer
+    end
 
   (* reduce(f, acc, {x1, x2, ...}) = f(..., f(x2, f(x1, acc))) *)
   | Reduce (binop, acc_exp, arr_exp, tp, pos) =>
