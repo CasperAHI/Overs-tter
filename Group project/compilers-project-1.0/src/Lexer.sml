@@ -74,11 +74,11 @@ and action_17 lexbuf = (
 and action_16 lexbuf = (
  Parser.EQ     (getPos lexbuf) )
 and action_15 lexbuf = (
- Parser.NEGATE (getPos lexbuf) )
-and action_14 lexbuf = (
- Parser.NOT    (getPos lexbuf) )
-and action_13 lexbuf = (
  Parser.DEQ    (getPos lexbuf) )
+and action_14 lexbuf = (
+ Parser.NEGATE (getPos lexbuf) )
+and action_13 lexbuf = (
+ Parser.NOT    (getPos lexbuf) )
 and action_12 lexbuf = (
  Parser.MINUS  (getPos lexbuf) )
 and action_11 lexbuf = (
@@ -131,7 +131,7 @@ and state_0 lexbuf = (
  |  #" " => state_3 lexbuf
  |  #"\n" => action_2 lexbuf
  |  #"\f" => action_2 lexbuf
- |  #"~" => action_15 lexbuf
+ |  #"~" => action_14 lexbuf
  |  #"}" => action_23 lexbuf
  |  #"|" => state_23 lexbuf
  |  #"{" => action_22 lexbuf
@@ -224,7 +224,7 @@ and state_17 lexbuf = (
  setLexLastAction lexbuf (magic action_16);
  let val currChar = getNextChar lexbuf in
  case currChar of
-    #"=" => action_13 lexbuf
+    #"=" => action_15 lexbuf
  |  _ => backtrack lexbuf
  end)
 and state_18 lexbuf = (

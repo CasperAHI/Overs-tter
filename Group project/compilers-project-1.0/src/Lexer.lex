@@ -82,9 +82,9 @@ rule Token = parse
   | "||"                { Parser.OR     (getPos lexbuf) }
   | `+`                 { Parser.PLUS   (getPos lexbuf) }
   | `-`                 { Parser.MINUS  (getPos lexbuf) }
-  | "=="                { Parser.DEQ    (getPos lexbuf) }
   | "not"               { Parser.NOT    (getPos lexbuf) }
   | `~`                 { Parser.NEGATE (getPos lexbuf) }
+  | "=="                { Parser.DEQ    (getPos lexbuf) }
   | `=`                 { Parser.EQ     (getPos lexbuf) }
   | `<`                 { Parser.LTH    (getPos lexbuf) }
   | `(`                 { Parser.LPAR   (getPos lexbuf) }

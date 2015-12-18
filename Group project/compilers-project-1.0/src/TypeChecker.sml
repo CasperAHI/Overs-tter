@@ -140,7 +140,7 @@ and checkExp ftab vtab (exp : In.Exp)
          in
            if k = Int
            then (Int, Out.Negate (e_dec, pos))
-           else raise Fail "Not a Interger"
+           else raise Fail "Not an Interger"
          end
 
     (* The types for e1, e2 must be the same. The result is always a Bool. *)

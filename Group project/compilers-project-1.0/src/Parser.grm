@@ -26,10 +26,11 @@ open Fasto.UnknownTypes
 %nonassoc ifprec letprec
 %left OR
 %left AND
-%left NOT NEGATE
+%nonassoc NOT
 %left DEQ LTH
-%left TIMES DIVIDE
 %left PLUS MINUS
+%left TIMES DIVIDE
+%nonassoc NEGATE
 
 %start Prog
 %type <Fasto.UnknownTypes.Prog> Prog

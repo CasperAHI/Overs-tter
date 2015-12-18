@@ -397,6 +397,7 @@ fun compileExp e vtable place =
           , Mips.LI (place,"1")
           , Mips.LABEL falseLabel ]
       end
+
   | Less (e1, e2, pos) =>
       let val t1 = newName"lt_L"
           val t2 = newName"lt_R"
