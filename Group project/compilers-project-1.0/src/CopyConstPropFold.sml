@@ -32,13 +32,11 @@ fun copyConstPropFoldExp vtable e =
         let val e' = copyConstPropFoldExp vtable e
         in case e' of
                Var (varname, p) =>
-               (case Symtab.lookup varname vtable of
-                    SOME (VarProp newname) => Var (newname, p)
-                    | _                    => Var (varname, p))
+               let val new_vtab = vtable
+               in (VarProp varname)::new_vtab
+               end
              | Constant (value, p) =>
-               (case Symtab.lookup value vtable of
-                    SOME (ConstProp newvalue) => Constant (newvalue, p)
-                  | _                         => Constant (valuename, p))
+               raise Fail "lal"
              | Let (Dec bindee, inner_body, inner_pos) =>
                raise Fail "Cannot copy-propagate Let yet"
              | _ => (* Fallthrough - for everything else, do nothing *)
