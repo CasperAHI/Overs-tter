@@ -31,10 +31,14 @@ fun copyConstPropFoldExp vtable e =
       | Let (Dec (name, e, decpos), body, pos) =>
         let val e' = copyConstPropFoldExp vtable e
         in case e' of
-               Var (varname, _) =>
-               raise Fail "Cannot copy-propagate Var yet"
-             | Constant (value, _) =>
-               raise Fail "Cannot copy-propagate Constant yet"
+               Var (varname, p) =>
+               (case Symtab.lookup varname vtable of
+                    SOME (VarProp newname) => Var (newname, p)
+                    | _                    => Var (varname, p))
+             | Constant (value, p) =>
+               (case Symtab.lookup value vtable of
+                    SOME (ConstProp newvalue) => Constant (newvalue, p)
+                  | _                         => Constant (valuename, p))
              | Let (Dec bindee, inner_body, inner_pos) =>
                raise Fail "Cannot copy-propagate Let yet"
              | _ => (* Fallthrough - for everything else, do nothing *)
@@ -45,12 +49,26 @@ fun copyConstPropFoldExp vtable e =
       | Times (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
-        in Times (e1', e2', pos) (* Do something here. *)
+        in case (e1', e2', pos) of
+             (Constant(Intval x, _), Constant (IntVal y, _)) =>
+             Constant (Intval (x*y), pos)
+            | (Constant(Intval 0, _), Constant(IntVal y, _)) =>
+              Constant (Intval 0, pos)
+            | (Constant(Intval x, _), Constant(IntVal 0, _)) =>
+              Constant (Intval 0, pos)
+            | (Constant(Intval 1, _), Constant(IntVal y, _)) =>
+              e2'
+            | (Constant(Intval x, _), Constant(IntVal 1, _)) =>
+              e1'
+            | _ => Times(e1', e2', pos)
         end
       | And (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
-        in And (e1', e2', pos) (* Do something here. *)
+        in case (e1', e2', pos) of
+                (Constant (BoolVal 1), Constant (BoolVal 1)) =>
+                Constant(BoolVal 1, pos)
+             | _ => And (e1, e2, pos)
         end
       | Constant x => Constant x
       | StringLit x => StringLit x
