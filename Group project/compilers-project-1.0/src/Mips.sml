@@ -2,8 +2,8 @@
 
 structure Mips = struct
 
-type reg = string
-type imm = string
+type reg  = string
+type imm  = string
 type addr = string
 
 datatype Instruction =

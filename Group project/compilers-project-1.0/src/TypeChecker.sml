@@ -52,16 +52,16 @@ fun checkTypesEqualOrError pos (t1, t2) =
     raise Error ("Cannot match types "^ppType t1^" and "^ppType t2, pos)
 
 (* Determine if a value of some type can be printed with write() *)
-fun printable (Int) = true
-  | printable (Bool) = true
-  | printable (Char) = true
+fun printable (Int)        = true
+  | printable (Bool)       = true
+  | printable (Char)       = true
   | printable (Array Char) = true
-  | printable _ = false  (* For all other array types *)
+  | printable _            = false  (* For all other array types *)
 
 (* Type-check the two operands to a binary operator - they must both be of type 't' *)
 fun checkBinOp ftab vtab (pos, t, e1, e2) =
-    let val (t1, e1') = checkExp ftab vtab e1
-        val (t2, e2') = checkExp ftab vtab e2
+    let val (t1, e1')        = checkExp ftab vtab e1
+        val (t2, e2')        = checkExp ftab vtab e2
     in  if (t = t1 andalso t = t2)
         then (t, e1', e2')
         else raise Error ("In checkBinOp: types not equal "^ppType t^" and "^ppType t1^" and "^ppType t2, pos)
@@ -74,12 +74,12 @@ fun checkBinOp ftab vtab (pos, t, e1, e2) =
    at the end.) *)
 and checkExp ftab vtab (exp : In.Exp)
   = case exp of
-      In.Constant  (v, pos)     => (valueType v, Out.Constant (v, pos))
-    | In.StringLit (s, pos)     => (Array Char, Out.StringLit (s, pos))
-    | In.ArrayLit  ([], _, pos) => raise Error("Impossible empty array", pos)
+      In.Constant  (v, pos)            => (valueType v, Out.Constant (v, pos))
+    | In.StringLit (s, pos)            => (Array Char, Out.StringLit (s, pos))
+    | In.ArrayLit  ([], _, pos)        => raise Error("Impossible empty array", pos)
     | In.ArrayLit  (exp::exps, _, pos) =>
-      let val (type_exp, exp_dec)    = checkExp ftab vtab exp
-          val (types_exps, exps_dec) = unzip (map (checkExp ftab vtab) exps)
+      let val (type_exp, exp_dec)      = checkExp ftab vtab exp
+          val (types_exps, exps_dec)   = unzip (map (checkExp ftab vtab) exps)
           val same_type = foldl (checkTypesEqualOrError pos) type_exp types_exps
       (* join will raise an exception if types do not match *)
       in (Array same_type,
@@ -145,8 +145,8 @@ and checkExp ftab vtab (exp : In.Exp)
 
     (* The types for e1, e2 must be the same. The result is always a Bool. *)
     | In.Equal (e1, e2, pos)
-      => let val (t1, e1') = checkExp ftab vtab e1
-             val (t2, e2') = checkExp ftab vtab e2
+      => let val (t1, e1')  = checkExp ftab vtab e1
+             val (t2, e2')  = checkExp ftab vtab e2
          in case (t1 = t2, t1) of
                  (false, _) => raise Error ("Cannot compare "^ ppType t1 ^
                                             "and "^ppType t2^"for equality",
@@ -156,8 +156,8 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
     | In.Less (e1, e2, pos)
-      => let val (t1, e1') = checkExp ftab vtab e1
-             val (t2, e2') = checkExp ftab vtab e2
+      => let val (t1, e1')  = checkExp ftab vtab e1
+             val (t2, e2')  = checkExp ftab vtab e2
          in case (t1 = t2, t1) of
                  (false, _) => raise Error ("Cannot compare "^ ppType t1 ^
                                             "and "^ppType t2^"for equality",
@@ -169,12 +169,11 @@ and checkExp ftab vtab (exp : In.Exp)
 
     | In.If (pred, e1, e2, pos)
       => let val (pred_t, pred') = checkExp ftab vtab pred
-             val (t1, e1') = checkExp ftab vtab e1
-             val (t2, e2') = checkExp ftab vtab e2
+             val (t1, e1')       = checkExp ftab vtab e1
+             val (t2, e2')       = checkExp ftab vtab e2
              val target_type = checkTypesEqualOrError pos (t1, t2)
          in case pred_t of
-                Bool => (target_type,
-                         Out.If (pred', e1', e2', pos))
+                Bool      => (target_type, Out.If (pred', e1', e2', pos))
               | otherwise => raise Error ("Non-boolean predicate", pos)
          end
 
@@ -193,8 +192,8 @@ and checkExp ftab vtab (exp : In.Exp)
           end
 
     | In.Let (In.Dec (name, exp, pos1), exp_body, pos2)
-      => let val (t1, exp_dec)      = checkExp ftab vtab exp
-             val new_vtab           = SymTab.bind name t1 vtab
+      => let val (t1, exp_dec)       = checkExp ftab vtab exp
+             val new_vtab            = SymTab.bind name t1 vtab
               val (t2, exp_body_dec) = checkExp ftab new_vtab exp_body
          in (t2,
              Out.Let (Out.Dec (name, exp_dec, pos1), exp_body_dec, pos2))
@@ -214,8 +213,8 @@ and checkExp ftab vtab (exp : In.Exp)
              val arr_type =
                  case SymTab.lookup s vtab of
                      SOME (Array t) => t
-                   | NONE => raise Error ("Unknown identifier " ^ s, pos)
-                   | SOME other =>
+                   | NONE           => raise Error ("Unknown identifier " ^ s, pos)
+                   | SOME other     =>
                      raise Error (s ^ " has type " ^ ppType other ^
                                   ": not an array", pos)
          in (arr_type, Out.Index (s, i_exp_dec, arr_type, pos))
@@ -230,7 +229,7 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
     | In.Map (f, arr_exp, _, _, pos)
-      => let val (a_type,b) = checkExp ftab vtab arr_exp
+      => let val (a_type,b)   = checkExp ftab vtab arr_exp
              val (f_type,k,p) = checkFunArg(f, vtab, ftab, pos)
          in
            if a_type = k
@@ -239,9 +238,9 @@ and checkExp ftab vtab (exp : In.Exp)
          end
 
      | In.Reduce (f, n_exp, arr_exp, _, pos)
-      => let val (n_type, n_dec) = checkExp ftab vtab n_exp
+      => let val (n_type, n_dec)     = checkExp ftab vtab n_exp
              val (arr_type, arr_dec) = checkExp ftab vtab arr_exp
-             val (f_type, f_dec, k) = checkFunArg (f, vtab, ftab, pos)
+             val (f_type, f_dec, k)  = checkFunArg (f, vtab, ftab, pos)
          in
            if (n_type = arr_type)
            then (n_type, Out.Reduce (f_type, n_dec, arr_dec, f_dec, pos))
@@ -250,7 +249,7 @@ and checkExp ftab vtab (exp : In.Exp)
 
 and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
-         NONE             => raise Error ("Unknown identifier " ^ fname, pos)
+         NONE => raise Error ("Unknown identifier " ^ fname, pos)
        | SOME (ret_type, arg_types, _) => (Out.FunName fname, ret_type, arg_types))
   | checkFunArg (In.Lambda (rettype, params, body, funpos), vtab, ftab, pos) =
     let val lambda = In.FunDec ("<lambda>", rettype, params, body, funpos)
@@ -305,7 +304,7 @@ fun checkProg funDecs =
     let val ftab = foldr updateFunctionTable initFunctionTable funDecs
         val decorated_funDecs = map (checkFun ftab) funDecs
     in case SymTab.lookup "main" ftab of
-           NONE         => raise Error ("No main function defined", (0,0))
+           NONE            => raise Error ("No main function defined", (0,0))
          | SOME (_, [], _) => decorated_funDecs  (* all fine! *)
          | SOME (ret_type, args, mainpos) =>
            raise Error
