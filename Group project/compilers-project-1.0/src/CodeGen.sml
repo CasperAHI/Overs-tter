@@ -522,7 +522,7 @@ fun compileExp e vtable place =
          @ loop_footer
       end
 
-  | Map (FunName(farg), arr_exp, elem_type, ret_type, pos) =>
+  | Map (farg, arr_exp, elem_type, ret_type, pos) =>
     let
        val size_reg = newName "size_reg"
        val arr_reg = newName "arr_reg"
@@ -542,11 +542,11 @@ fun compileExp e vtable place =
                          , Mips.BGEZ (tmp_reg, loop_end) ]
        val loop_map = case getElemSize elem_type of
                           One => Mips.LB (res_reg, elem_reg, "0")
-                                 :: applyRegs (farg, [res_reg], res_reg, pos)
+                                 :: applyFunArg (farg, vtable, [res_reg], res_reg, pos)
                                  @ [Mips.ADDI (elem_reg, elem_reg, "1")]
                                  @ [Mips.ADDI (addr_reg, addr_reg, "1")]
                          |Four => Mips.LW(res_reg, elem_reg, "0")
-                                 :: applyRegs (farg, [res_reg], res_reg, pos)
+                                 :: applyFunArg (farg, vtable, [res_reg], res_reg, pos)
                                  @ [Mips.ADDI (elem_reg, elem_reg, "4")]
                                  @ [Mips.ADDI (addr_reg, addr_reg, "4")]
        val loop_type = case getElemSize ret_type of
@@ -568,6 +568,21 @@ fun compileExp e vtable place =
   (* reduce(f, acc, {x1, x2, ...}) = f(..., f(x2, f(x1, acc))) *)
   | Reduce (binop, acc_exp, arr_exp, tp, pos) =>
     raise Fail "Unimplemented feature reduce"
+
+and applyFunArg (FunName fname, vtable, aargs, place, pos) =
+    let val tmp = newName "tmp_reg"
+    in
+      applyRegs(fname,aargs, tmp, pos) @ [Mips.MOVE(place, tmp)]
+    end
+  | applyFunArg ((Lambda(tp, pars, body, _)), vtable, aargs, place, pos) =
+    let fun bindArgToVtab ((Param(fa,_)::fargs), (aa::aargs), vtab) =
+            SymTab.bind fa aa (bindArgToVtab (fargs, aargs, vtab))
+          | bindArgToVtab (_, _, vtab) = vtab
+        val tmp = newName "tmp_reg"
+        val new_vtab = bindArgToVtab (pars, aargs, vtable)
+    in
+      (compileExp (body, new_vtab, place) @ [Mips.MOVE(place, tmp)])
+    end
 
 (* compile condition *)
 and compileCond c vtable tlab flab =
