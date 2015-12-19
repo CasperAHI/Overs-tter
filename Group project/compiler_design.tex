@@ -1,0 +1,99 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[danish]{babel}
+
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{moreverb}
+\usepackage{verbatim}
+\usepackage{listings}
+% Ved at bruge kommandoen \newcommand kan man forkorte kommandoer eller ændre dem til noget mere passende.
+\newcommand{\setR}{\mathbb{R}}
+\newcommand{\setZ}{\mathbb{Z}}
+\newcommand{\setN}{\mathbb{N}}
+\newcommand{\setF}{\mathbb{F}}
+\newcommand{\lra}{\leftrightarrow}
+\newcommand{\Lra}{\Leftrightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\ac}{\textasciicircum}
+\newcommand{\uuline}[1]{\underline{\underline{#1}}}
+\newcommand{\bpm}{\begin{pmatrix}}
+\newcommand{\epm}{\end{pmatrix}}
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\renewcommand{\headrulewidth}{0pt}
+
+\title{Group Project - FASTO}
+\author{	Anders Brandhof '190493' SGL135 \\ Andreas Jørgensen '240594' SRV415 \\ Casper Iversen '090691' JVP497 \\ Søren Jensen '270792' PWS412 \\
+}
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\section{Opgaven}
+Vi skal i denne gruppe opgave færdiggøre en optimeret compiler til FASTO. FASTO er et simpelt første-ordens funktionelt sprog.
+\section{Design}
+Compileren er blevet lavet i sml. For at færdiggøre compileren har vi ændret i de følgende filer:
+\begin{itemize}
+\item Lexer.lex\\
+\item Parser.grm \\
+\item Interpreter.sml \\
+\item TypeChecker.sml \\
+\item CopyConstPropFold.sml \\
+\item CodeGen.sml
+\end{itemize} 
+Vi vil i afsnittene gennemgå de vigtigste ændringer vi har lavet.
+\subsection{Lexer}
+I filen Lexer.lex har vi fået givet tokens og keywords. Vi har her skulle tilføje flere tokens og keywords til FASTO. Det har her været map, reduce, iota, true, false mm..\\
+Vi har tilføjet keywords i funktionen "keyword (s, pos), dette har vi gjort på følgende måde: \\
+\begin{lstlisting}
+fun keyword (s, pos) =
+case s of 
+     "map"    => Parser.MAP pos
+     "reduce" => Parser.REDUCE pos
+     "true"   => Parser.BOOLVAL (true,pos)
+     "false"  => Parser.BOOLVAL (false,pos)
+\end{lstlisting}
+Vi har kun beskrevet et par af de keywords vi har lavet, men det viser hvordan vi har gjort det.\\
+Vi har også tilføjet tokens til Lexer.lex, dette har vi gjort på følgende måde:\\
+\begin{lstlisting}
+   | '+'   { Parser.PLUS (getPos lexbuf) }
+   | '-'   { Parser.MINUS (getPos lexbuf) }
+   | "&&"  { Parser.AND (getPos lexbuf) }
+   | "not" { Parser.NOT (getPos lexbuf) }
+   | _     { lexerError lexbuf "Illegal symbol in input" };
+\end{lstlisting}
+Vi har kun vist et udsnit af de tokens vi har lavet. Som det kan ses på eksemplet, bruger vi både ' ' og " ". Forskellen på dette er, at ' ' er en char og " " er en string. Grunden til vi bliver nød til at definere det som en string, er fordi det er sammensat af mere end en char, og derfor skal være en string for at blive genkendt.
+\subsection{Parser}
+I filen Parser.grm ser vi på hvordan vi bruger de tokens vi har lavet i Lexer.lex. Her er et lille udsnit af, hvordan vi har gjort dette:\\
+\begin{lstlisting}
+%token <int*(int*int)> NUM
+%token <bool*(int*int)> BOOLVAL
+%token <char*(int*int)> CHARLIT
+%token <(int*int)> AND OR
+%token <(int*int)> NOT
+\end{lstlisting}
+Her ligger man mærke til, at vi har skrevet (int*int). Dette er for, at vi ved hvorhenne den pågældende token er blevet brugt. Dette gør det muligt for os at kunne returnere en relevant fejlbesked med lokationen i dokumentet.\\ \\
+Vi har i Parser.grm også skulle definere precedens af f.eks. +, -, $\cdot$ og 
+/. Dette har vi gjort ud fra operatornes præcedens i matematikken.\\ \\
+Vi har også skulle tage stilling til, hvordan f.eks. DIVIDE skal bruge dens Exp, parameter etc.. Nedenunder har vi vist et udsnit af, hvordan vi har gjort dette:
+\begin{lstlisting}
+        | BOOLVAL        { Constant (BoolVal (#1 $1), #2 $1) }
+        | Exp TIMES  Exp { Times ($1, $3, $2) }
+        | Exp DIVIDE Exp { Divide ($1, $3, $2) }
+\end{lstlisting}
+\subsection{TypeChecker}
+\subsection{Interpreter}
+\subsection{CopyConstPropFold}
+\subsection{CodeGen}
+\section{Tests}
+
+\end{document}
