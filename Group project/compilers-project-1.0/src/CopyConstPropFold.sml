@@ -32,6 +32,7 @@ fun copyConstPropFoldExp vtable e =
         let val e' = copyConstPropFoldExp vtable e
         in case e' of
                Var (varname, p) =>
+<<<<<<< Updated upstream
                (case Symtab.lookup varname vtable of
                     SOME (VarProp newname) => Var (newname, p)
                     | _                    => Var (varname, p))
@@ -40,6 +41,18 @@ fun copyConstPropFoldExp vtable e =
                     SOME (ConstProp newvalue) => Constant (newvalue, p)
                   | _                         => Constant (valuename, p))
              | Let (Dec bindee, inner_body, inner_pos) =>
+=======
+               let val new_vtab = vtable
+                   val new_vtab = SymTab.bind name (VarProp varname) new_vtab
+               in copyConstPropFoldExp new_vtab e'
+               end
+               | Constant (value, p) =>
+                 let val new_vtab = vtable
+                     val new_vtab = SymTab.bind name (ConstProp value) new_vtab
+                 in copyConstPropFoldExp new_vtab e'
+                 end
+               | Let (Dec bindee, inner_body, inner_pos) =>
+>>>>>>> Stashed changes
                raise Fail "Cannot copy-propagate Let yet"
              | _ => (* Fallthrough - for everything else, do nothing *)
                let val body' = copyConstPropFoldExp vtable body
@@ -49,25 +62,25 @@ fun copyConstPropFoldExp vtable e =
       | Times (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
-        in case (e1', e2', pos) of
-             (Constant(Intval x, _), Constant (IntVal y, _)) =>
-             Constant (Intval (x*y), pos)
-            | (Constant(Intval 0, _), Constant(IntVal y, _)) =>
-              Constant (Intval 0, pos)
-            | (Constant(Intval x, _), Constant(IntVal 0, _)) =>
-              Constant (Intval 0, pos)
-            | (Constant(Intval 1, _), Constant(IntVal y, _)) =>
+        in case (e1', e2') of
+             (Constant (IntVal x, _), Constant (IntVal y, _)) =>
+             Constant (IntVal (x*y), pos)
+            | (Constant(IntVal 0, _), Constant(IntVal y, _)) =>
+              Constant (IntVal 0, pos)
+            | (Constant(IntVal x, _), Constant(IntVal 0, _)) =>
+              Constant (IntVal 0, pos)
+            | (Constant(IntVal 1, _), Constant(IntVal y, _)) =>
               e2'
-            | (Constant(Intval x, _), Constant(IntVal 1, _)) =>
+            | (Constant(IntVal x, _), Constant(IntVal 1, _)) =>
               e1'
             | _ => Times(e1', e2', pos)
         end
       | And (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
-        in case (e1', e2', pos) of
-                (Constant (BoolVal 1), Constant (BoolVal 1)) =>
-                Constant(BoolVal 1, pos)
+        in case (e1', e2') of
+                (Constant (BoolVal true,_), Constant (BoolVal true,_)) =>
+                Constant(BoolVal true,pos)
              | _ => And (e1, e2, pos)
         end
       | Constant x => Constant x
