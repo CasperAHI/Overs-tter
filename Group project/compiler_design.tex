@@ -106,6 +106,18 @@ Lad os kigge på vores implementation af map:
 Vi sikrer os her, at vi får en funktion og en array. Det er derfor vigtigt, at vi returner en fejl, hvis vi ikke modtager de rigtige argument typer. Som man kan se i vores kode ovenover, tager vi netop højde for dette. For at gøre det nemmere at se, hvor det går galt med typerne, vælger vi at sende positionen af det forkerte argument med i fejlbeskeden. 
 Dette har vi valgt at gøre med alle type tjek i filen TypeChecker.
 \subsection{Interpreter}
+I Interpreter delen tager vi forbehold for den rent sml mæssigt del af fasto, ikke at forvæksle med CodeGen som er Mips kode så er dette nærmest den del hvor vi bruger sml til at tolke hvordan vi udføre en funktion. Lad os kigge på And for at få en bedre forståele af det:
+\begin{lstlisting}
+  | evalExp (And (e1, e2, pos), vtab, ftab) =
+        let val r1 = evalExp(e1, vtab, ftab)
+            val r2 = evalExp(e2, vtab, ftab)
+        in  case (r1, r2) of
+              (BoolVal b1, BoolVal b2) => BoolVal (b1 andalso b2)
+            | (_, _) => invalidOperands "Invalid And operand types" 
+            	[(Bool, Bool)] r1 r2 pos
+\end{lstlisting}
+Her evaluere vi vores udtryk fra exp 1 og exp 2 cheker dem og hvis de begge 2 er BoolVal så udføre vi den normale sml funktion andalso på b1 og b2, giver den nye værdi BoolVal.\\
+Vi har Interpreter med for at danne vores syntax tree som vi bruger i alle de andre dele af sproget.
 \subsection{CopyConstPropFold}
 I filen CopyConstPropFold har vi optimeret compileren. Dette har vi gjort ved brug af simple matematiske operationer. Hvis vi ser på vores gange operation, har vi valgt at optimere den ved, at definere $0 \cdot x$ som værende lig med $0$, og $1 \cdot x$ som værende lig med $x$. Det ser måske ikke ud af meget, men vil få det til at køre hurtigere. Vores implementation af dette kan ses i nedenstående kode:
 \begin{lstlisting}
