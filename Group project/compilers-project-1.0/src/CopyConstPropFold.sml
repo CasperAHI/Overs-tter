@@ -32,7 +32,6 @@ fun copyConstPropFoldExp vtable e =
         let val e' = copyConstPropFoldExp vtable e
         in case e' of
                Var (varname, p) =>
-<<<<<<< Updated upstream
                (case Symtab.lookup varname vtable of
                     SOME (VarProp newname) => Var (newname, p)
                     | _                    => Var (varname, p))
@@ -41,7 +40,6 @@ fun copyConstPropFoldExp vtable e =
                     SOME (ConstProp newvalue) => Constant (newvalue, p)
                   | _                         => Constant (valuename, p))
              | Let (Dec bindee, inner_body, inner_pos) =>
-=======
                let val new_vtab = vtable
                    val new_vtab = SymTab.bind name (VarProp varname) new_vtab
                in copyConstPropFoldExp new_vtab e'
@@ -52,7 +50,6 @@ fun copyConstPropFoldExp vtable e =
                  in copyConstPropFoldExp new_vtab e'
                  end
                | Let (Dec bindee, inner_body, inner_pos) =>
->>>>>>> Stashed changes
                raise Fail "Cannot copy-propagate Let yet"
              | _ => (* Fallthrough - for everything else, do nothing *)
                let val body' = copyConstPropFoldExp vtable body
