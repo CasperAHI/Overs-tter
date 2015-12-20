@@ -107,6 +107,71 @@ Vi sikrer os her, at vi får en funktion og en array. Det er derfor vigtigt, at 
 Dette har vi valgt at gøre med alle type tjek i filen TypeChecker.
 \subsection{Interpreter}
 \subsection{CopyConstPropFold}
+I filen CopyConstPropFold har vi optimeret compileren. Dette har vi gjort ved brug af simple matematiske operationer. Hvis vi ser på vores gange operation, har vi valgt at optimere den ved, at definere $0 \cdot x$ som værende lig med $0$, og $1 \cdot x$ som værende lig med $x$. Det ser måske ikke ud af meget, men vil få det til at køre hurtigere. Vores implementation af dette kan ses i nedenstående kode:
+\begin{lstlisting}
+| Times (e1, e2, pos) =>
+        let val e1' = copyConstPropFoldExp vtable e1
+            val e2' = copyConstPropFoldExp vtable e2
+        in case (e1', e2') of
+             (Constant (IntVal x, _), Constant (IntVal y, _)) =>
+             Constant (IntVal (x*y), pos)
+            | (Constant(IntVal 0, _), Constant(IntVal y, _)) =>
+              Constant (IntVal 0, pos)
+            | (Constant(IntVal x, _), Constant(IntVal 0, _)) =>
+              Constant (IntVal 0, pos)
+            | (Constant(IntVal 1, _), Constant(IntVal y, _)) =>
+              e2'
+            | (Constant(IntVal x, _), Constant(IntVal 1, _)) =>
+              e1'
+            | _ => Times(e1', e2', pos)
+        end
+\end{lstlisting}
+Denne form for optimering har vi lavet for flere af funktionerne. I forhold til opgaven stilt i Task 3, har vi også lavet følgende ændring i koden til Copy Propagation:
+\begin{lstlisting}
+fun copyConstPropFoldExp vtable e =
+    case e of
+      (* Copy propagation is handled entirely in the following three
+      cases for variables, array indexing, and let-bindings. *)
+        Var (name, pos) =>
+        (case SymTab.lookup name vtable of
+             SOME (VarProp newname) => Var (newname, pos)
+           | SOME (ConstProp value) => Constant (value, pos)
+           | _                      => Var (name, pos))
+      | Index (name, e, t, pos) =>
+        (case SymTab.lookup name vtable of
+             SOME (VarProp newname) =>
+               Index (newname, copyConstPropFoldExp vtable e, t, pos)
+          |  _ =>
+               Index (name, copyConstPropFoldExp vtable e, t, pos))
+      | Let (Dec (name, e, decpos), body, pos) =>
+        let val e' = copyConstPropFoldExp vtable e
+        in case e' of
+               Var (varname, p) =>
+               (case Symtab.lookup varname vtable of
+                    SOME (VarProp newname) => Var (newname, p)
+                    | _                    => Var (varname, p))
+             | Constant (value, p) =>
+               (case Symtab.lookup value vtable of
+                    SOME (ConstProp newvalue) => Constant (newvalue, p)
+                  | _                         => Constant (valuename, p))
+             | Let (Dec bindee, inner_body, inner_pos) =>
+               let val new_vtab = vtable
+                   val new_vtab = SymTab.bind name (VarProp varname) new_vtab
+               in copyConstPropFoldExp new_vtab e'
+               end
+               | Constant (value, p) =>
+                 let val new_vtab = vtable
+                     val new_vtab = SymTab.bind name (ConstProp value) new_vtab
+                 in copyConstPropFoldExp new_vtab e'
+                 end
+               | Let (Dec bindee, inner_body, inner_pos) =>
+               raise Fail "Cannot copy-propagate Let yet"
+             | _ => (* Fallthrough - for everything else, do nothing *)
+               let val body' = copyConstPropFoldExp vtable body
+               in Let (Dec (name, e', decpos), body', pos)
+               end
+        end
+\end{lstlisting}
 \subsection{CodeGen}
 CodeGen er der hvor vores reale handlinger for vores sprog sker. Det er her vi skriver vores Mips kode og sørger for at de rigtige funktioner bliver udført af funktionerne når de bliver brugt. for at forstå dette bedre lad os kigge på et stykke af vores funktion Map:
 \begin{lstlisting}
