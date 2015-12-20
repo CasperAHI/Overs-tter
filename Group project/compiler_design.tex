@@ -108,6 +108,42 @@ Dette har vi valgt at gøre med alle type tjek i filen TypeChecker.
 \subsection{Interpreter}
 \subsection{CopyConstPropFold}
 \subsection{CodeGen}
+CodeGen er der hvor vores reale handlinger for vores sprog sker. Det er her vi skriver vores Mips kode og sørger for at de rigtige funktioner bliver udført af funktionerne når de bliver brugt. for at forstå dette bedre lad os kigge på et stykke af vores funktion Map:
+\begin{lstlisting}
+val loop_map = case getElemSize elem_type of
+         One => Mips.LB (res_reg, elem_reg, "0")
+                :: applyFunArg (farg, vtable, [res_reg], res_reg, pos)
+                @ [Mips.ADDI (elem_reg, elem_reg, "1")]
+                @ [Mips.ADDI (addr_reg, addr_reg, "1")]
+        |Four => Mips.LW(res_reg, elem_reg, "0")
+                :: applyFunArg (farg, vtable, [res_reg], res_reg, pos)
+                @ [Mips.ADDI (elem_reg, elem_reg, "4")]
+                @ [Mips.ADDI (addr_reg, addr_reg, "4")]
+\end{lstlisting}
+Hvad vi gør i dette stykke er vi tjekker for at se om vores element i listen er 1 eller 4 for at beslutter hvor langt fremme det næste element i listen så er. Og hvad dette betyder er blot om elementet kun er 1 bit eller om det er et word vi skal loade\\
+Når vi så har fundet ud af dette loader vi vores word/bit til res\_ reg og smider den ind i vores applyfunarg funktion som håndtere vores funktion alt efter om den er en anonym funktion eller blot en string. Derefter hopper vi frem i vores array så vi er klar til at loade det næste element i næste iteration. Og alt dette samles da til en liste af Mips kommandoer vi kalder til sidst.\\[0.1in]
+Hvad der dog har meget stor betydning for netop denne funktion er håndteringen af vores funktion, derfor lad os kigge på vores applyFunArg og se hvad vi gør anderledes når vi møder en anonym funktion:
+\begin{lstlisting}
+and applyFunArg (FunName fname, vtable, aargs, place, pos) =
+    let val tmp = newName "tmp_reg"
+    in
+      applyRegs(fname,aargs, tmp, pos) @ [Mips.MOVE(place, tmp)]
+    end
+  | applyFunArg ((Lambda(tp, pars, body, _)), vtable, aargs, place, pos) =
+    let fun bindArgToVtab ((Param(fa,_)::fargs), (aa::aargs), vtab) =
+            SymTab.bind fa aa (bindArgToVtab (fargs, aargs, vtab))
+          | bindArgToVtab (_, _, vtab) = vtab
+        val tmp = newName "tmp_reg"
+        val new_vtab = bindArgToVtab (pars, aargs, vtable)
+    in
+      (compileExp body new_vtab place) @ [Mips.MOVE(place, tmp)]
+    end
+\end{lstlisting}
+Hvad vi har gjort her er at vi tjekker om det er en anonym funktion og hvis det er bruger vi den opgivede funktion applyregs til at håndtere dem og ellers går vi ned til vores lambda del.\\
+Det vi så har gjort i denne del er blot at lave en funktion som modtager en Param Liste, end arg liste og en vtab. Dette kalder vi så blot rekusivt til vi er igennem enten alle elementerne i en liste eller begge lister og får så vtable. Hvad der sker er blot at vi binder elementerne i listen til vtable. Så bruger vi da funktionen til at lave en ny vtab som vi bruger i compileExp og sætter så værdien til placeringen som vi får fra applyFunargs.\\
+Alt det her gør blot at vi fortolker vores funktion til et Mips kald vi kan bruge.\\
+Funktinoen her vil både kunne bruges i Map men også i reduce da begge funktionerne er meget simulere, med den forskel at reduces funktion har 2 input, mens Map kun har 1.\\[0.1in]
+Måde vi ville have implementeret Reduce på ville have været meget simuler med Map dog med forskellen at der skulle have været en værdi er blev gemt for hver iteration som kunne bruges til næste som blot er forskellen på reduce og map (og at reduce har 1 element mere, men det ville vores applyFunArg stadig godt kunne håndtere med lidt kreativ tænkning.)
 \section{Tests}
 
 \end{document}

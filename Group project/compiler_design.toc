@@ -7,4 +7,4 @@
 \contentsline {subsection}{\numberline {2.4}Interpreter}{5}{subsection.2.4}
 \contentsline {subsection}{\numberline {2.5}CopyConstPropFold}{5}{subsection.2.5}
 \contentsline {subsection}{\numberline {2.6}CodeGen}{5}{subsection.2.6}
-\contentsline {section}{\numberline {3}Tests}{5}{section.3}
+\contentsline {section}{\numberline {3}Tests}{6}{section.3}
