@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.6.23)  20 DEC 2015 23:36
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.6.23)  20 DEC 2015 23:43
 entering extended mode
 **compiler_design.tex
 ("C:\Users\Akuma\Documents\GitHub\Overs-tter\Group project\compiler_design.tex"
@@ -827,17 +827,17 @@ Overfull \hbox (39.0039pt too wide) in paragraph at lines 216--217
  []
 
 [7]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 226.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 227.
  [8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 226.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 227.
 
 ("C:\Users\Akuma\Documents\GitHub\Overs-tter\Group project\compiler_design.aux"
 )
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 226.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 226.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 227.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 227.
 Package rerunfilecheck Info: File `compiler_design.out' has not changed.
 (rerunfilecheck)             Checksum: C6F1CD087E1449BD1AC98F1C7A974884;483.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 226.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 227.
  ) 
 Here is how much of TeX's memory you used:
  8326 strings out of 493921
@@ -854,7 +854,7 @@ Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Pro
 gram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Progra
 m Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program F
 iles (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on compiler_design.pdf (8 pages, 136981 bytes).
+Output written on compiler_design.pdf (8 pages, 137587 bytes).
 PDF statistics:
  272 PDF objects out of 1000 (max. 8388607)
  145 named destinations out of 1000 (max. 500000)
