@@ -581,7 +581,7 @@ and applyFunArg (FunName fname, vtable, aargs, place, pos) =
         val tmp = newName "tmp_reg"
         val new_vtab = bindArgToVtab (pars, aargs, vtable)
     in
-      (compileExp (body, new_vtab, place) @ [Mips.MOVE(place, tmp)])
+      (compileExp body new_vtab place) @ [Mips.MOVE(place, tmp)]
     end
 
 (* compile condition *)
