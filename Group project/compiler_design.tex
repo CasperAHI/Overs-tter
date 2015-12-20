@@ -91,6 +91,20 @@ Vi har også skulle tage stilling til, hvordan f.eks. DIVIDE skal bruge dens Exp
         | Exp DIVIDE Exp { Divide ($1, $3, $2) }
 \end{lstlisting}
 \subsection{TypeChecker}
+I filen TypeChecker sikrer vi os, at vores funktioner har de rette argumenter, og at typerne er korrekte. Hvis vi f.eks. ser på '+', skal vi sikre os, at argumentet til højre og til venstre for '+'et, er integers. Det skal derfor ikke være muligt, at kunne lægge en string sammen med en integer. \\
+Lad os kigge på vores implementation af map:
+\begin{lstlisting}
+| In.Map (f, arr_exp, _, _, pos)
+      => let val (a_type,b) = checkExp ftab vtab arr_exp
+             val (f_type,k,p) = checkFunArg(f, vtab, ftab, pos)
+         in
+           if a_type = k
+           then (k, Out.Map(f_type, b, k, a_type, pos))
+           else raise Error ("Map: Wrong argument type" ^ ppType a_type, pos)
+         end
+\end{lstlisting}
+Vi sikrer os her, at vi får en funktion og en array. Det er derfor vigtigt, at vi returner en fejl, hvis vi ikke modtager de rigtige argument typer. Som man kan se i vores kode ovenover, tager vi netop højde for dette. For at gøre det nemmere at se, hvor det går galt med typerne, vælger vi at sende positionen af det forkerte argument med i fejlbeskeden. 
+Dette har vi valgt at gøre med alle type tjek i filen TypeChecker.
 \subsection{Interpreter}
 \subsection{CopyConstPropFold}
 \subsection{CodeGen}
